@@ -1,10 +1,19 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { GymClass } from "./types";
+import type { GymClass, User } from "./types";
+import type { RootState } from "./store";
 
 export const api = createApi({
   reducerPath: "api", // dónde se guarda la caché en el store
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL, // de momento, http://localhost:3001
+    // Se ejecuta antes de cada petición: si hay sesión, va el token en la cabecera
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["Class"],
   endpoints: (builder) => ({
@@ -21,7 +30,29 @@ export const api = createApi({
       query: (id) => `/classes/${id}`,
       providesTags: ["Class"],
     }),
+
+    // POST /users. json-server guarda lo que le mandes: el rol lo ponemos nosotros
+    register: builder.mutation<User, { email: string; password: string }>({
+      query: (body) => ({ url: "/users", method: "POST", body: { ...body, role: "member" } }),
+    }),
+
+    // ¿Quién soy? Recibe el token. Con tu API será: query: () => "/auth/me"
+    // json-server no tiene /me: sacamos el id del token falso ("token-fake-1" -> "1")
+    getMe: builder.query<User, string>({
+      query: (token) => `/users/${token.replace("token-fake-", "")}`,
+      // json-server devuelve también la contraseña: la quitamos
+      transformResponse: (response: User & { password: string }) => {
+        const { password: _password, ...user } = response;
+        return user;
+      },
+    }),
   }),
 });
 
-export const { useGetClassesQuery, useGetClassQuery } = api;
+export const {
+  useGetClassesQuery,
+  useGetClassQuery,
+  useGetMeQuery,
+  useLazyGetMeQuery,
+  useRegisterMutation,
+} = api;
