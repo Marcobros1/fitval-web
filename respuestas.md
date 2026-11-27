@@ -21,3 +21,9 @@ Respuesta: Al recargar, el buscador sigue con el texto (`yoga`) y el horario mue
 **Pregunta 4:** ¿cuántas peticiones salen la segunda vez? ¿Por qué?
 
 Respuesta: Ninguna. La primera vez, escribir `spin` letra a letra hizo 4 peticiones (`activity:contains=s`, `sp`, `spi` y `spin`), una por cada cambio. Al borrar y escribir `spin` de nuevo, RTK Query ya tiene esas consultas en su caché y las sirve desde memoria. Solo pide datos de nuevo si la consulta no está guardada o si se invalida con un `invalidatesTags` (por ejemplo, tras crear una clase).
+
+## Parte 3
+
+**Pregunta 5:** ¿sigues dentro después de recargar? ¿Qué hay guardado en `localStorage`? ¿Por qué ese token no le serviría a una API de verdad?
+
+Respuesta: Sí, sigues dentro. Al recargar, la app lee el token de `localStorage` y pide `/users/2` para saber quién eres. Lo único guardado es la clave `token`, con el valor `token-fake-2`: no hay datos del usuario, solo el texto del que se saca el id. Ese token no le serviría a una API de verdad porque es un texto inventado y no está firmado. Una API real (con JWT) comprueba la firma con su clave secreta, y `token-fake-2` no la tiene, así que respondería `401`. Además, al guardarse en `localStorage`, cualquier script que se ejecute en la página puede leerlo.
