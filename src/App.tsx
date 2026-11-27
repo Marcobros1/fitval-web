@@ -1,11 +1,8 @@
-import { PlansPage } from "./features/plans/PlansPage";
+import { RouterProvider } from "react-router";
+import { router } from "./app/router";
 
 function App() {
-  return (
-    <main>
-      <PlansPage />
-    </main>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
