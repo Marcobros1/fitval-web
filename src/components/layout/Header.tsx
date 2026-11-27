@@ -8,7 +8,7 @@ export function Header() {
         <Link to="/" className={styles.logo}>
           FitVal
         </Link>
-        {/* end: sin Ã©l, "Planes" quedarÃ­a activo en todas las pÃ¡ginas, porque todas empiezan por "/" */}
+        {/* end: sin él, "Planes" quedaría activo en todas las páginas, porque todas empiezan por "/" */}
         <NavLink to="/" end>
           Planes
         </NavLink>
