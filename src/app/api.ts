@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { GymClass, User } from "./types";
+import type { GymClass, NewGymClass, User } from "./types";
 import type { RootState } from "./store";
 
 export const api = createApi({
@@ -31,6 +31,18 @@ export const api = createApi({
       providesTags: ["Class"],
     }),
 
+    // POST /classes (solo staff)
+    createClass: builder.mutation<GymClass, NewGymClass>({
+      query: (newClass) => ({ url: "/classes", method: "POST", body: newClass }),
+      invalidatesTags: ["Class"], // el horario está viejo: RTK Query lo vuelve a pedir
+    }),
+
+    // DELETE /classes/:id (solo staff). Devuelve la clase borrada
+    deleteClass: builder.mutation<GymClass, string>({
+      query: (id) => ({ url: `/classes/${id}`, method: "DELETE" }),
+      invalidatesTags: ["Class"],
+    }),
+
     // POST /users. json-server guarda lo que le mandes: el rol lo ponemos nosotros
     register: builder.mutation<User, { email: string; password: string }>({
       query: (body) => ({ url: "/users", method: "POST", body: { ...body, role: "member" } }),
@@ -55,4 +67,6 @@ export const {
   useGetMeQuery,
   useLazyGetMeQuery,
   useRegisterMutation,
+  useCreateClassMutation,
+  useDeleteClassMutation,
 } = api;
